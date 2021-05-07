@@ -1,85 +1,94 @@
+#include <stdio.h>
+
 #include "binary_trees.h"
 
 /**
- * swap_node - Swap a node while node->n > parent->n
- * @node: Pointer to the node to swap
+ * countNodes - count num of nodes
+ * @node: double pointer to the node node of the Heap
+ * Return: number of nodes
  */
-void swap_node(heap_t *node)
+unsigned int countNodes(binary_tree_t *node)
 {
-	int tmp = 0;
+	unsigned int count = 1;
 
-	for (; node->parent; node = node->parent)
-	{
-		if (node->n > node->parent->n)
-		{
-			tmp = node->parent->n;
-			node->parent->n = node->n;
-			node->n = tmp;
-		}
-	}
+	if (node == NULL)
+		return (0);
+
+	if (node->left != NULL)
+		count += countNodes(node->left);
+	if (node->right != NULL)
+		count += countNodes(node->right);
+
+	return (count);
 }
 
 /**
- * position - Find the position to insert a node
- * @node: Tree's root
- * @pos: Position to insert a node
- * @flag: Bool to keep recursion
- * @depth: Tree's depth
- * @level: Position in the Tree (0 == root)
- * Return: @pos
+ * insertLeaf - insert new Leaf
+ * @r: root of max heap tree
+ * @value: value of new leaf
+ * Return: pointer to leaf
  */
-heap_t *position(heap_t *node, heap_t *pos, int *flag, int *depth, int level)
+heap_t *insertLeaf(heap_t *r, int value)
 {
-	if (*flag)
+	heap_t *q[1025] = {NULL}, *leaf = NULL;
+	int i = 0, tailIndex = 0;
+
+	q[0] = r;
+	while (q[i] != NULL)
 	{
-		if (!node->left || !node->right)
+		if (q[i]->left == NULL)
 		{
-			if (!pos)
-			{
-				*depth = level;
-				pos = node;
-			}
-			else if (level < *depth)
-			{
-				*flag = 0;
-				pos = node;
-			}
+			leaf = binary_tree_node(q[i], value);
+			q[i]->left = leaf;
+			break;
 		}
 		else
-		{
-			pos = position(node->left, pos, flag, depth, level + 1);
-			pos = position(node->right, pos, flag, depth, level + 1);
-		}
-	}
+			q[++tailIndex] = q[i]->left;
 
-	return (pos);
+		if (q[i]->right == NULL)
+		{
+			leaf = binary_tree_node(q[i], value);
+			q[i]->right = leaf;
+			break;
+		}
+		else
+			q[++tailIndex] = q[i]->right;
+		i++;
+	}
+	return (leaf);
 }
 
+
 /**
- * heap_insert - Max HEAP insertion function.
- * @root: pointer to the first node of the tree
- * @value: number to be inserted
- * Return: Pointer to the new created node.
+ * heap_insert - inserts a value into a Max Binary Heap
+ * @root: double pointer to the root node of the Heap
+ * @value: value to put in the new node
+ * Return: pointer to the inserted node or NULL if failed
  */
 heap_t *heap_insert(heap_t **root, int value)
 {
-	heap_t *node = NULL, *parent = NULL;
-	int flag = 1, depth = 0;
+	binary_tree_t *leaf = NULL, *tmp = NULL;
+	int temp = 0;
 
-	if (!*root)
+	if ((root == NULL) || (*root == NULL))
 	{
-		*root = binary_tree_node(NULL, value);
-		return (*root);
+		leaf = binary_tree_node(*root, value);
+		*root = leaf;
+		return (leaf);
 	}
 
-	parent = position(*root, parent, &flag, &depth, 0);
-	node = binary_tree_node(parent, value);
-
-	if (!parent->left)
-		parent->left = node;
-	else
-		parent->right = node;
-
-	swap_node(node);
-	return (node);
+	leaf = insertLeaf(*root, value);
+	tmp = leaf;
+	while ((leaf != NULL) && (leaf->parent != NULL))
+	{
+		if (leaf->parent->n < leaf->n)
+		{
+			temp = leaf->parent->n;
+			leaf->parent->n = leaf->n;
+			leaf->n = temp;
+			tmp = tmp->parent;
+		}
+		leaf = leaf->parent;
+	}
+	return (tmp);
 }
