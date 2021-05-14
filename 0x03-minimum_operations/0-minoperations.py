@@ -6,7 +6,7 @@ Minimum Operations function.
 def minOperations(n):
 
     # Validations
-    if type(n) != int or type(n) != float:
+    if type(n) != int:
         return (0)
     if n <= 1:
         return (0)
