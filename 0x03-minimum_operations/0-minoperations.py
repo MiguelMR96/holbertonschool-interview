@@ -3,6 +3,7 @@
 Minimum Operations function.
 """
 
+
 def minOperations(n):
 
     # Validations
@@ -18,9 +19,8 @@ def minOperations(n):
         if n % len(str) == 0:
             copy = str
             count += 1
-        
+
         # Paste
         str += copy
-        count +=1
+        count += 1
     return count
- 
