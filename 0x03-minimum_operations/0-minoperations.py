@@ -18,7 +18,7 @@ def minOperations(n):
     while len(str) < n:
         # Copy
         if n % len(str) == 0:
-            copy += str
+            copy = str
             count += 1
         
         # Paste
